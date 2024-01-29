@@ -6,9 +6,10 @@ import net.jacobpeterson.alpaca.model.endpoint.marketdata.stock.realtime.trade.S
 import net.jacobpeterson.alpaca.websocket.marketdata.MarketDataListener;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 
-import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+
+import static org.cardinal.util.StreamUtil.SUBSCRIBED_SYMBOL_LIST;
 
 /**
  * A Flink SourceFunction for streaming stock trade messages from Alpaca's market data API.
@@ -57,7 +58,7 @@ public abstract class AlpacaSourceFunction implements SourceFunction<StockTradeM
 
             alpacaAPI.stockMarketDataStreaming().subscribe(
                     null,
-                    Arrays.asList("AAPL", "GOOG"),
+                    SUBSCRIBED_SYMBOL_LIST,
                     null);
 
             while (isRunning) {

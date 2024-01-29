@@ -10,6 +10,9 @@ import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindow
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.cardinal.functions.MaintainLastAverage;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * The StreamUtil class provides utility methods for creating and processing data streams
  * in the Flink application. It includes methods for reading data, calculating moving averages,
@@ -17,6 +20,7 @@ import org.cardinal.functions.MaintainLastAverage;
  */
 public class StreamUtil {
     public static final String TARGET_SYMBOL = "AAPL";
+    public static final List<String> SUBSCRIBED_SYMBOL_LIST = Arrays.asList("AAPL", "GOOG");
     public static final String CONSTANT_KEY = "constantKey";
     public static final String BUY = "BUY";
     public static final String SELL = "SELL";
