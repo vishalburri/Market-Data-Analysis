@@ -29,6 +29,16 @@ Output: Prints buy/sell signals to the console.
     2. cd market-data-analysis
     3. mvn clean package
 
+## Source Config
+To use Alpaca source:  
+    
+    1. export ALPACA_API_KEY = <YOUR_API_KEY>
+    2. export ALPACA_API_SECRET = <YOUR_SECRET_KEY>
+
+To use CSV source: (Modify below value in StreamUtil.java)
+
+    TRADES_FILE_PATH = "<YOUR_PATH_TO_CSV>";
+
 ## Start the Flink job:
     ./bin/start-cluster.sh
     ./bin/flink run target/market-data-analysis-1.0-SNAPSHOT.jar
@@ -42,7 +52,7 @@ The buy/sell signals will be printed to the console as the job processes data. Y
 
 ## Additional Information
 
-* Checkpointing and Savepoints: The job is configured for checkpointing with a 30-second interval. Refer to the code for configuration details.  
+* Checkpointing: The job is configured for checkpointing with a 30-second interval. Refer to the code for configuration details.  
 * Failure Handling: The job is designed to recover from failures using checkpoints.   
 * Custom Functions: The project includes custom source and aggregate functions.
 

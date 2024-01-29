@@ -29,7 +29,9 @@ public abstract class AlpacaSourceFunction implements SourceFunction<StockTradeM
     public void run(SourceContext<StockTradeMessage> ctx) {
         try {
             LinkedBlockingQueue<StockTradeMessage> messageQueue = new LinkedBlockingQueue<>();
-            alpacaAPI = new AlpacaAPI("PKT16JAOOQOZB1A0LDLS", "eV8zYvtwO6T58kdOOTp1nNDfULaCo4NBKws6ygGX");
+            String apiKey = System.getenv("ALPACA_API_KEY");
+            String apiSecret = System.getenv("ALPACA_API_SECRET");
+            alpacaAPI = new AlpacaAPI(apiKey, apiSecret);
 
             MarketDataListener streamingListener = (messageType, message) -> {
                 if (message instanceof StockTradeMessage) {

@@ -22,6 +22,10 @@ public class StreamUtil {
     public static final String SELL = "SELL";
     public static final int SLIDING_WINDOW_RANGE = 60;
     public static final int SLIDE_INTERVAL = 30;
+    public static final String TRADES_FILE_PATH = "/home/vishal/trades.csv";
+    public static final String CHECK_POINTS_PATH = "file:///tmp/checkpoints";
+    public static final int CHECK_POINTS_INTERVAL = 30000;
+    public static final int MAX_CONCURRENT_CHECK_POINTS = 1;
 
 
     /**

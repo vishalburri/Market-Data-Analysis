@@ -1,5 +1,6 @@
 package org.cardinal;
 
+import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -18,7 +19,10 @@ import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Objects;
 
+import static org.cardinal.util.StreamUtil.CHECK_POINTS_INTERVAL;
+import static org.cardinal.util.StreamUtil.CHECK_POINTS_PATH;
 import static org.cardinal.util.StreamUtil.CONSTANT_KEY;
+import static org.cardinal.util.StreamUtil.MAX_CONCURRENT_CHECK_POINTS;
 import static org.cardinal.util.StreamUtil.SLIDE_INTERVAL;
 import static org.cardinal.util.StreamUtil.SLIDING_WINDOW_RANGE;
 import static org.cardinal.util.StreamUtil.TARGET_SYMBOL;
@@ -40,9 +44,13 @@ public class DataStreamJob {
     public static void main(String[] args) throws Exception {
 
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.enableCheckpointing(CHECK_POINTS_INTERVAL);
+        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
+        env.getCheckpointConfig().setMaxConcurrentCheckpoints(MAX_CONCURRENT_CHECK_POINTS);
+        env.getCheckpointConfig().setCheckpointStorage(CHECK_POINTS_PATH);
 
         SingleOutputStreamOperator<Trade> quoteStream = env
-                .addSource(new CSVSourceFunction("/home/vishal/trades.csv"))
+                .addSource(new CSVSourceFunction(StreamUtil.TRADES_FILE_PATH))
                 .filter(Objects::nonNull)
                 .assignTimestampsAndWatermarks(WatermarkStrategy
                         .<Trade>forBoundedOutOfOrderness(Duration.ofSeconds(5))
