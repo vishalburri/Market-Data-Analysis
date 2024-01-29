@@ -20,10 +20,8 @@ import java.util.List;
  */
 public class StreamUtil {
     public static final String TARGET_SYMBOL = "AAPL";
-    public static final List<String> SUBSCRIBED_SYMBOL_LIST = Arrays.asList("AAPL", "GOOG");
+    public static final List<String> SUBSCRIBED_SYMBOL_LIST = Arrays.asList("AAPL", "GOOG", "MSFT", "TSLA");
     public static final String CONSTANT_KEY = "constantKey";
-    public static final String BUY = "BUY";
-    public static final String SELL = "SELL";
     public static final int SLIDING_WINDOW_RANGE = 60;
     public static final int SLIDE_INTERVAL = 30;
     public static final String TRADES_FILE_PATH = "/home/vishal/trades.csv";

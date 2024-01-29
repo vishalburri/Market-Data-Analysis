@@ -56,8 +56,10 @@ class StreamUtilTest {
         List<String> result = buySellSignals.executeAndCollect(2);
 
         Assertions.assertEquals(2, result.size());
-        Assertions.assertEquals(StreamUtil.BUY, result.get(0));
-        Assertions.assertEquals(StreamUtil.SELL, result.get(1));
+        Assertions.assertEquals("BUY Signal triggered with currentTargetAvgPrice: 2.0 lastTargetAvgPrice: 1.5" +
+                " currentOtherStockAvgPrice: 3.0 lastOtherStockAvgPrice: 2.5", result.get(0));
+        Assertions.assertEquals("SELL Signal triggered with currentTargetAvgPrice: 2.0 lastTargetAvgPrice: 1.5 " +
+                "currentOtherStockAvgPrice: 2.2 lastOtherStockAvgPrice: 3.0", result.get(1));
     }
 
 }

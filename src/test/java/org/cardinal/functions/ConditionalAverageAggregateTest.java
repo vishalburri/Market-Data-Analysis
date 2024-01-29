@@ -1,7 +1,7 @@
 package org.cardinal.functions;
 
+import net.jacobpeterson.alpaca.model.endpoint.marketdata.stock.realtime.trade.StockTradeMessage;
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.cardinal.model.Trade;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -28,8 +28,12 @@ class ConditionalAverageAggregateTest {
     @Test
     public void testAdd() {
         Tuple3<Map<String, Double>, Map<String, List<Double>>, Integer> accumulator = aggregateFunction.createAccumulator();
-        Trade trade1 = new Trade("AAPL", 1, 100.0, 10, "NYSE", null);
-        Trade trade2 = new Trade("AAPL", 2, 110.0, 20, "NYSE", null);
+        StockTradeMessage trade1 = new StockTradeMessage();
+        trade1.setSymbol("AAPL");
+        trade1.setPrice(100.0);
+        StockTradeMessage trade2 = new StockTradeMessage();
+        trade2.setSymbol("AAPL");
+        trade2.setPrice(110.0);
 
         accumulator = aggregateFunction.add(trade1, accumulator);
         accumulator = aggregateFunction.add(trade2, accumulator);
@@ -42,8 +46,12 @@ class ConditionalAverageAggregateTest {
     @Test
     public void testGetResult() {
         Tuple3<Map<String, Double>, Map<String, List<Double>>, Integer> accumulator = aggregateFunction.createAccumulator();
-        Trade trade1 = new Trade("AAPL", 1, 100.0, 10, "NYSE", null);
-        Trade trade2 = new Trade("AAPL", 2, 110.0, 20, "NYSE", null);
+        StockTradeMessage trade1 = new StockTradeMessage();
+        trade1.setSymbol("AAPL");
+        trade1.setPrice(100.0);
+        StockTradeMessage trade2 = new StockTradeMessage();
+        trade2.setSymbol("AAPL");
+        trade2.setPrice(110.0);
 
         accumulator = aggregateFunction.add(trade1, accumulator);
         accumulator = aggregateFunction.add(trade2, accumulator);
@@ -57,8 +65,12 @@ class ConditionalAverageAggregateTest {
         Tuple3<Map<String, Double>, Map<String, List<Double>>, Integer> a = aggregateFunction.createAccumulator();
         Tuple3<Map<String, Double>, Map<String, List<Double>>, Integer> b = aggregateFunction.createAccumulator();
 
-        Trade trade1 = new Trade("AAPL", 1, 100.0, 10, "NYSE", null);
-        Trade trade2 = new Trade("GOOG", 2, 200.0, 15, "NASDAQ", null);
+        StockTradeMessage trade1 = new StockTradeMessage();
+        trade1.setSymbol("AAPL");
+        trade1.setPrice(100.0);
+        StockTradeMessage trade2 = new StockTradeMessage();
+        trade2.setSymbol("GOOG");
+        trade2.setPrice(200.0);
 
         a = aggregateFunction.add(trade1, a);
         b = aggregateFunction.add(trade2, b);

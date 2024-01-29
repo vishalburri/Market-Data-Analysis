@@ -1,5 +1,6 @@
 package org.cardinal;
 
+import net.jacobpeterson.alpaca.model.endpoint.marketdata.stock.realtime.trade.StockTradeMessage;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
@@ -11,14 +12,12 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.cardinal.functions.AverageAggregate;
 import org.cardinal.functions.ConditionalAverageAggregate;
-import org.cardinal.model.Trade;
-import org.cardinal.source.CSVSourceFunction;
+import org.cardinal.source.AlpacaSourceFunction;
 import org.cardinal.util.StreamUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
-import java.time.ZoneId;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -52,25 +51,25 @@ public class DataStreamJob {
 
         setFlinkConfigProperties(env);
 
-        SingleOutputStreamOperator<Trade> quoteStream = env
-                .addSource(new CSVSourceFunction(StreamUtil.TRADES_FILE_PATH))
+        // For CSV source use new CSVSourceFunction(StreamUtil.TRADES_FILE_PATH)
+        SingleOutputStreamOperator<StockTradeMessage> quoteStream = env
+                .addSource(new AlpacaSourceFunction())
                 .filter(Objects::nonNull)
                 .assignTimestampsAndWatermarks(WatermarkStrategy
-                        .<Trade>forBoundedOutOfOrderness(Duration.ofSeconds(5))
-                        .withTimestampAssigner((event, timestamp) -> event.getTimestamp().
-                                atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
+                        .<StockTradeMessage>forBoundedOutOfOrderness(Duration.ofSeconds(5))
+                        .withTimestampAssigner((event, timestamp) -> event.getTimestamp().toInstant().toEpochMilli())
                 );
 
         // Generate moving average stream data based on sliding window for target symbol
         SingleOutputStreamOperator<Double> targetMovingAverageStream = quoteStream
                 .filter(quote -> TARGET_SYMBOL.equals(quote.getSymbol()))
-                .map(Trade::getPrice)
+                .map(StockTradeMessage::getPrice)
                 .windowAll(SlidingEventTimeWindows.of(Time.seconds(SLIDING_WINDOW_RANGE), Time.seconds(SLIDE_INTERVAL)))
                 .aggregate(new AverageAggregate());
 
 
         // Generate moving average stream data based on sliding window for non target symbols
-        KeyedStream<Trade, String> keyedNonTargetStream = quoteStream
+        KeyedStream<StockTradeMessage, String> keyedNonTargetStream = quoteStream
                 .filter(quote -> !TARGET_SYMBOL.equals(quote.getSymbol()))
                 .keyBy(quote -> CONSTANT_KEY);
 

@@ -1,8 +1,8 @@
 package org.cardinal.functions;
 
+import net.jacobpeterson.alpaca.model.endpoint.marketdata.stock.realtime.trade.StockTradeMessage;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.cardinal.model.Trade;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +13,7 @@ import java.util.Map;
  * An AggregateFunction for computing the average trade price conditionally across multiple trades.
  * It aggregates trade data by symbol and computes the average trade price for each symbol.
  */
-public class ConditionalAverageAggregate implements AggregateFunction<Trade, Tuple3<Map<String, Double>, Map<String, List<Double>>, Integer>, Double> {
+public class ConditionalAverageAggregate implements AggregateFunction<StockTradeMessage, Tuple3<Map<String, Double>, Map<String, List<Double>>, Integer>, Double> {
 
     /**
      * Creates an accumulator for the aggregate function.
@@ -31,7 +31,7 @@ public class ConditionalAverageAggregate implements AggregateFunction<Trade, Tup
      * @return The updated accumulator.
      */
     @Override
-    public Tuple3<Map<String, Double>, Map<String, List<Double>>, Integer> add(Trade value, Tuple3<Map<String, Double>, Map<String, List<Double>>, Integer> accumulator) {
+    public Tuple3<Map<String, Double>, Map<String, List<Double>>, Integer> add(StockTradeMessage value, Tuple3<Map<String, Double>, Map<String, List<Double>>, Integer> accumulator) {
         String symbol = value.getSymbol();
         double avgPrice = value.getPrice();
 

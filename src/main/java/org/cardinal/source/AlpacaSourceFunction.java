@@ -15,10 +15,12 @@ import static org.cardinal.util.StreamUtil.SUBSCRIBED_SYMBOL_LIST;
  * A Flink SourceFunction for streaming stock trade messages from Alpaca's market data API.
  * This function connects to the Alpaca WebSocket and subscribes to trade messages for specified stock symbols.
  */
-public abstract class AlpacaSourceFunction implements SourceFunction<StockTradeMessage> {
+public class AlpacaSourceFunction implements SourceFunction<StockTradeMessage> {
 
     private volatile boolean isRunning = true;
     private transient AlpacaAPI alpacaAPI;
+    private static final String ALPACA_API_KEY = "ALPACA_API_KEY";
+    private static final String ALPACA_API_SECRET = "ALPACA_API_SECRET";
 
     /**
      * Connects to Alpaca's WebSocket API and listens for stock trade messages.
@@ -30,15 +32,14 @@ public abstract class AlpacaSourceFunction implements SourceFunction<StockTradeM
     public void run(SourceContext<StockTradeMessage> ctx) {
         try {
             LinkedBlockingQueue<StockTradeMessage> messageQueue = new LinkedBlockingQueue<>();
-            String apiKey = System.getenv("ALPACA_API_KEY");
-            String apiSecret = System.getenv("ALPACA_API_SECRET");
+            String apiKey = System.getenv(ALPACA_API_KEY);
+            String apiSecret = System.getenv(ALPACA_API_SECRET);
             alpacaAPI = new AlpacaAPI(apiKey, apiSecret);
 
             MarketDataListener streamingListener = (messageType, message) -> {
                 if (message instanceof StockTradeMessage) {
-                    System.out.println(message);
                     StockTradeMessage quoteMessage = (StockTradeMessage) message;
-                    ctx.collect(quoteMessage);
+                    messageQueue.offer(quoteMessage);
                 }
             };
             alpacaAPI.stockMarketDataStreaming().setListener(streamingListener);
@@ -57,13 +58,12 @@ public abstract class AlpacaSourceFunction implements SourceFunction<StockTradeM
             }
 
             alpacaAPI.stockMarketDataStreaming().subscribe(
-                    null,
                     SUBSCRIBED_SYMBOL_LIST,
+                    null,
                     null);
 
             while (isRunning) {
                 StockTradeMessage message = messageQueue.take();
-                System.out.println(message);
                 ctx.collect(message);
             }
         } catch (Exception e) {
@@ -86,6 +86,4 @@ public abstract class AlpacaSourceFunction implements SourceFunction<StockTradeM
             }
         }
     }
-
-    abstract AlpacaAPI createAlpacaAPI();
 }
