@@ -9,9 +9,9 @@ This project utilizes Apache Flink to process real-time market data, compute mov
 Data Source: Alpaca MarketData API / CSV file containing trade data (symbol, price, timestamp).
 
 Data Processing:  
-    * Reads data from the CSV file using a custom AlpacaSourceFunction / CSVSourceFunction.
-    * Gets market data stream based on the subscribed symbols
-    * Assigns timestamps and watermarks to handle out-of-order events.  
+    * Reads data using a custom AlpacaSourceFunction (Websocket) / CSVSourceFunction (CSV).  
+    * Gets market data stream based on the subscribed symbols.  
+    * Assigns timestamps and watermarks to handle out-of-order events.    
     * Computes moving averages within 60-second sliding windows with 30-second slide intervals.  
     * Joins processed streams for target and non-target symbols.  
     * Generates buy/sell signals based on calculated averages. 
