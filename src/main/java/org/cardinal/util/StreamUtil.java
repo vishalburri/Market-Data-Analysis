@@ -68,8 +68,14 @@ public class StreamUtil {
 
                         if (currentTargetAvg != null && currentOtherAvg != null && lastTargetAvg != null && lastOtherAvg != null) {
                             if (currentTargetAvg > lastTargetAvg && currentOtherAvg > lastOtherAvg) {
+                                System.out.println("BUY Signal triggered with currentTargetAvgPrice: " + currentTargetAvg
+                                        + " lastTargetAvgPrice: " + lastTargetAvg + " currentOtherStockAvgPrice: "
+                                        + currentOtherAvg + " lastOtherStockAvgPrice: " + lastOtherAvg);
                                 return BUY;
                             } else {
+                                System.out.println("SELL Signal triggered with currentTargetAvgPrice: " + currentTargetAvg
+                                        + " lastTargetAvgPrice: " + lastTargetAvg + " currentOtherStockAvgPrice: "
+                                        + currentOtherAvg + " lastOtherStockAvgPrice: " + lastOtherAvg);
                                 return SELL;
                             }
                         }

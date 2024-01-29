@@ -45,7 +45,9 @@ To use CSV source: (Modify below value in StreamUtil.java)
 
 ## Checking Signals
 
-The buy/sell signals will be printed to the console as the job processes data. You can also view the signals in the Flink web UI (usually at http://localhost:8081).
+The buy/sell signals will be printed to the console as the job processes data.  
+You can also view the signals in the Flink web UI (usually at http://localhost:8081) and
+go to flink-task-executor.out file.
 
 ## Running Tests
     mvn test

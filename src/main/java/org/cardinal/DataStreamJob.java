@@ -82,8 +82,6 @@ public class DataStreamJob {
 
         DataStream<String> buySellSignals = StreamUtil.getBuySellSignals(processedTargetStream, processedNonTargetsStream);
 
-        buySellSignals.print();
-
         env.execute("Market Data Analysis");
     }
 }
