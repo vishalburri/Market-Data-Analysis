@@ -27,10 +27,11 @@ public class StreamUtil {
     public static final int SLIDING_WINDOW_RANGE = 60;
     public static final int SLIDE_INTERVAL = 30;
     public static final String TRADES_FILE_PATH = "/home/vishal/trades.csv";
-    public static final String CHECK_POINTS_PATH = "file:///tmp/checkpoints";
-    public static final int CHECK_POINTS_INTERVAL = 30000;
-    public static final int MAX_CONCURRENT_CHECK_POINTS = 1;
-
+    public static final String FLINK_CONFIG_PATH = "flink-config.properties";
+    public static final String CHECKPOINT_INTERVAL_KEY = "checkpoint.interval";
+    public static final String CHECKPOINT_MODE_KEY = "checkpoint.mode";
+    public static final String CHECKPOINT_PATH_KEY = "checkpoint.path";
+    public static final String CHECKPOINT_CONCURRENT_KEY = "checkpoint.max.concurrent";
 
     /**
      * Processes a given data stream to calculate moving averages and maintain the last average state.
@@ -61,7 +62,7 @@ public class StreamUtil {
                 .join(processedNonTargetsStream)
                 .where(value -> value.f2)
                 .equalTo(value -> value.f2)
-                .window(SlidingEventTimeWindows.of(Time.seconds(30), Time.seconds(30)))
+                .window(SlidingEventTimeWindows.of(Time.seconds(SLIDE_INTERVAL), Time.seconds(SLIDE_INTERVAL)))
                 .apply(new JoinFunction<Tuple3<Double, Double, String>, Tuple3<Double, Double, String>, String>() {
                     @Override
                     public String join(Tuple3<Double, Double, String> eth, Tuple3<Double, Double, String> other) {
@@ -72,15 +73,17 @@ public class StreamUtil {
 
                         if (currentTargetAvg != null && currentOtherAvg != null && lastTargetAvg != null && lastOtherAvg != null) {
                             if (currentTargetAvg > lastTargetAvg && currentOtherAvg > lastOtherAvg) {
-                                System.out.println("BUY Signal triggered with currentTargetAvgPrice: " + currentTargetAvg
+                                String message = "BUY Signal triggered with currentTargetAvgPrice: " + currentTargetAvg
                                         + " lastTargetAvgPrice: " + lastTargetAvg + " currentOtherStockAvgPrice: "
-                                        + currentOtherAvg + " lastOtherStockAvgPrice: " + lastOtherAvg);
-                                return BUY;
+                                        + currentOtherAvg + " lastOtherStockAvgPrice: " + lastOtherAvg;
+                                System.out.println(message);
+                                return message;
                             } else {
-                                System.out.println("SELL Signal triggered with currentTargetAvgPrice: " + currentTargetAvg
+                                String message = "SELL Signal triggered with currentTargetAvgPrice: " + currentTargetAvg
                                         + " lastTargetAvgPrice: " + lastTargetAvg + " currentOtherStockAvgPrice: "
-                                        + currentOtherAvg + " lastOtherStockAvgPrice: " + lastOtherAvg);
-                                return SELL;
+                                        + currentOtherAvg + " lastOtherStockAvgPrice: " + lastOtherAvg;
+                                System.out.println(message);
+                                return message;
                             }
                         }
                         return null;

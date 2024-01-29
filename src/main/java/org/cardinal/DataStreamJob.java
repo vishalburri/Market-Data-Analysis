@@ -15,14 +15,19 @@ import org.cardinal.model.Trade;
 import org.cardinal.source.CSVSourceFunction;
 import org.cardinal.util.StreamUtil;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Objects;
+import java.util.Properties;
 
-import static org.cardinal.util.StreamUtil.CHECK_POINTS_INTERVAL;
-import static org.cardinal.util.StreamUtil.CHECK_POINTS_PATH;
+import static org.cardinal.util.StreamUtil.CHECKPOINT_CONCURRENT_KEY;
+import static org.cardinal.util.StreamUtil.CHECKPOINT_INTERVAL_KEY;
+import static org.cardinal.util.StreamUtil.CHECKPOINT_MODE_KEY;
+import static org.cardinal.util.StreamUtil.CHECKPOINT_PATH_KEY;
 import static org.cardinal.util.StreamUtil.CONSTANT_KEY;
-import static org.cardinal.util.StreamUtil.MAX_CONCURRENT_CHECK_POINTS;
+import static org.cardinal.util.StreamUtil.FLINK_CONFIG_PATH;
 import static org.cardinal.util.StreamUtil.SLIDE_INTERVAL;
 import static org.cardinal.util.StreamUtil.SLIDING_WINDOW_RANGE;
 import static org.cardinal.util.StreamUtil.TARGET_SYMBOL;
@@ -44,10 +49,8 @@ public class DataStreamJob {
     public static void main(String[] args) throws Exception {
 
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.enableCheckpointing(CHECK_POINTS_INTERVAL);
-        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-        env.getCheckpointConfig().setMaxConcurrentCheckpoints(MAX_CONCURRENT_CHECK_POINTS);
-        env.getCheckpointConfig().setCheckpointStorage(CHECK_POINTS_PATH);
+
+        setFlinkConfigProperties(env);
 
         SingleOutputStreamOperator<Trade> quoteStream = env
                 .addSource(new CSVSourceFunction(StreamUtil.TRADES_FILE_PATH))
@@ -83,5 +86,22 @@ public class DataStreamJob {
         DataStream<String> buySellSignals = StreamUtil.getBuySellSignals(processedTargetStream, processedNonTargetsStream);
 
         env.execute("Market Data Analysis");
+    }
+
+    private static void setFlinkConfigProperties(StreamExecutionEnvironment env) throws IOException {
+        Properties props = new Properties();
+        try (InputStream input = DataStreamJob.class.getClassLoader().getResourceAsStream(FLINK_CONFIG_PATH)) {
+            props.load(input);
+        }
+
+        long checkpointInterval = Long.parseLong(props.getProperty(CHECKPOINT_INTERVAL_KEY));
+        CheckpointingMode checkpointMode = CheckpointingMode.valueOf(props.getProperty(CHECKPOINT_MODE_KEY));
+        int maxConcurrentCheckpoints = Integer.parseInt(props.getProperty(CHECKPOINT_CONCURRENT_KEY));
+        String checkpointPath = props.getProperty(CHECKPOINT_PATH_KEY);
+
+        env.enableCheckpointing(checkpointInterval);
+        env.getCheckpointConfig().setCheckpointingMode(checkpointMode);
+        env.getCheckpointConfig().setMaxConcurrentCheckpoints(maxConcurrentCheckpoints);
+        env.getCheckpointConfig().setCheckpointStorage(checkpointPath);
     }
 }
